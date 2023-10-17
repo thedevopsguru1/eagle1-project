@@ -1,1 +1,1 @@
-# eagle1-project
+# Eagle-I
