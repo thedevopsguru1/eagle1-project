@@ -1,8 +1,5 @@
-# Pull base image 
-FROM anapsix/alpine-java 
-
-# Maintainer yayas
-EXPOSE 8080
-LABEL maintainer="yannickparkerS@gmail.com"
-COPY target/*.jar /maven/yannick.jar
-CMD ["java", "-jar","/maven/yannick.jar"]
+FROM adoptopenjdk/openjdk11:jdk-11.0.2.9-slim
+ENV PORT 8080
+COPY target/*.jar /opt/app.jar
+WORKDIR /opt
+ENTRYPOINT exec java $JAVA_OPTS -jar app.jar
