@@ -69,32 +69,7 @@ pipeline{
             }
         }
 
-        stage('Make yaml files changes & push them to Guthub'){
-            steps {
-                script{
-                  catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                    
-                     sh """
-                    git config --global user.name "thedevopsguru1"
-                    git config --global user.email "yannickparker1984@gmail.com" """
-                    withCredentials([usernamePassword(credentialsId: 'github', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
-                      
-                        sh "pwd"
-                        sh "echo $BUILD_NUMBER"
-                        sh "cat webapp.yaml"
-                        sh "sed -i -e 's+knote-eagle1.*+knote-eagle1:${env.BUILD_NUMBER}+g'  webapp.yaml"
-                        sh "cat webapp.yaml"
-                        sh " git add . "
-                        sh " git commit -m 'Updated the deployment file'"
-                        sh "git push http://$GIT_USERNAME:$GIT_PASSWORD@github.com/thedevopsguru1/eagle1-yaml-file.git master"
-             
-                      
-             
-                    }
-                  }
-                }
-            }
-        }
+        
                   
 
 
