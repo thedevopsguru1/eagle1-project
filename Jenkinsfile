@@ -78,7 +78,7 @@ pipeline{
                     git config --global user.name "thedevopsguru1"
                     git config --global user.email "yannickparker1984@gmail.com" """
                     withCredentials([usernamePassword(credentialsId: 'github', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
-                      
+                      dir('eagle1-yaml-file') {
                         sh "pwd"
                         sh "echo $BUILD_NUMBER"
                         sh "ls -alh"
@@ -89,7 +89,7 @@ pipeline{
                         sh " git commit -m 'Updated the deployment file'"
                         sh "git push http://$GIT_USERNAME:$GIT_PASSWORD@github.com/thedevopsguru1/eagle1-yaml-file.git main"
              
-                      
+                      }
              
                     }
                   }
