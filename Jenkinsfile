@@ -83,6 +83,7 @@ pipeline{
                         sh "echo $BUILD_NUMBER"
                         sh "cat webapp.yaml"
                         sh "sed -i -e 's+knote-eagle1.*+knote-eagle1:${env.BUILD_NUMBER}+g'  webapp.yaml"
+                        sh "ls -alh"
                         sh "cat webapp.yaml"
                         sh " git add . "
                         sh " git commit -m 'Updated the deployment file'"
