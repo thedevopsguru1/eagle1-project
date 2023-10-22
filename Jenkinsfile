@@ -49,10 +49,25 @@ pipeline{
              withDockerRegistry([ credentialsId: "Docker_creds", url: "https://index.docker.io/v1/" ]){
                sh 'docker build -t devopstrainingschool/knote-eagle1:$BUILD_NUMBER . -f Dockerfile'
                sh 'docker push devopstrainingschool/knote-eagle1:$BUILD_NUMBER'
-               
+               sh 'rm -rf eagle1-yaml-file'
              }
            }
     }
+
+    stage('Github clone the eagle1-yaml-file'){
+            steps {
+                script{
+                  catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                    withCredentials([usernamePassword(credentialsId: 'github', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+              sh "git clone https://github.com/thedevopsguru1/eagle1-yaml-file.git"
+              
+            
+             
+                    }
+                  }
+                }
+            }
+        }
 
 
 
