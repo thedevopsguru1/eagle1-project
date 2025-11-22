@@ -44,9 +44,9 @@ jobs:
 
       - name: Set TAG_LIST
         id: set_tag
-        run: echo "TAG_LIST=${GITHUB_SHA::7}" >> $GITHUB_ENV
-        # Also output for other jobs
-        echo "TAG_LIST=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+        run: |
+          echo "TAG_LIST=${GITHUB_SHA::7}" >> $GITHUB_ENV
+          echo "TAG_LIST=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
 
   kaniko:
     runs-on: ubuntu-latest
