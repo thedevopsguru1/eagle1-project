@@ -32,8 +32,6 @@ jobs:
 
   build-to-camden:
     runs-on: ubuntu-latest
-    container:
-      image: gcr.io/kaniko-project/executor:v1.24.0
     needs: build-backend
     steps:
       - name: Checkout repository
@@ -44,9 +42,12 @@ jobs:
           mkdir -p $HOME/.docker
           echo "{\"auths\":{\"${{ secrets.CAMDEN_REGISTRY }}\":{\"username\":\"${CAMDEN_USER}\",\"password\":\"${CAMDEN_PASS}\"}}}" > $HOME/.docker/config.json
 
-          /kaniko/executor \
-            --dockerfile=Dockerfile \
-            --context=. \
+          docker run --rm \
+            -v $PWD:/workspace \
+            -v $HOME/.docker:/kaniko/.docker \
+            gcr.io/kaniko-project/executor:v1.24.0 \
+            --dockerfile=/workspace/Dockerfile \
+            --context=/workspace \
             --destination=${{ secrets.CAMDEN_REGISTRY }}/web:${{ needs.build-backend.outputs.SHORT_SHA }} \
             ${{ env.KANIKO_CACHE_ARGS }} \
             --push-retry 5
