@@ -3,9 +3,9 @@ name: CI/CD with Kaniko
 on:
   push:
     branches: ["main", "master", "develop"]
-    paths:
-      - "backend/**"
-      - ".github/workflows/build-with-kaniko.yml"
+    # paths:
+    #   - "backend/**"
+    #   - ".github/workflows/build-with-kaniko.yml"
   workflow_dispatch:
 
 env:
