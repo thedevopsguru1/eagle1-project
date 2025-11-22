@@ -39,15 +39,16 @@ jobs:
 
       - name: Build and Push Image with Kaniko
         run: |
-          mkdir -p /kaniko/.docker
-          echo "{\"auths\":{\"${{ secrets.CAMDEN_REGISTRY }}\":{\"username\":\"${DOCKER_USERNAME}\",\"password\":\"${DOCKER_PASSWORD}\"}}}" > /kaniko/.docker/config.json
+          mkdir -p $HOME/.docker
+          echo "{\"auths\":{\"${{ secrets.CAMDEN_REGISTRY }}\":{\"username\":\"${DOCKER_USERNAME}\",\"password\":\"${DOCKER_PASSWORD}\"}}}" > $HOME/.docker/config.json
 
           /kaniko/executor \
             --dockerfile=Dockerfile \
             --context=. \
             --destination=${{ secrets.CAMDEN_REGISTRY }}/web:${{ needs.build-backend.outputs.SHORT_SHA }} \
             ${{ env.KANIKO_CACHE_ARGS }} \
-            --push-retry 5
+            --push-retry 5 \
+            --docker-config=$HOME/.docker
         env:
           DOCKER_USERNAME: ${{ secrets.CAMDEN_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.CAMDEN_PASSWORD }}
