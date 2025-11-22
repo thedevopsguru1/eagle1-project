@@ -65,12 +65,19 @@ jobs:
             --dockerfile=/workspace/Dockerfile \
             $destargs
 
-      - name: Deploy to Kubernetes (ArgoCD example)
-        if: always()
-        uses: amitsingh-007/argocd-autopilot@v1
-        with:
-          argocd_server: argocd.anaeleboo.com
-          argocd_token: ${{ secrets.ARGO_TOKEN }}
-          app_name: gbi
-          image_name: "${CAMDEN_REGISTRY}/${CAMDEN_REGISTRY_USER}/web"
-          image_tag: "${GITHUB_SHA::7}"
+      - name: Install ArgoCD CLI
+        run: |
+          curl -sSL -o argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+          chmod +x argocd
+          sudo mv argocd /usr/local/bin/
+      
+      - name: Deploy to ArgoCD
+        env:
+          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGO_TOKEN }}
+          ARGO_APP: gbi
+        run: |
+          argocd --server argocd.anaeleboo.com --insecure --grpc-web \
+            login argocd.anaeleboo.com --token $ARGOCD_AUTH_TOKEN
+          argocd app set "$ARGO_APP" -p web.image.tag="${GITHUB_SHA::7}"
+          argocd app sync "$ARGO_APP"
+      
