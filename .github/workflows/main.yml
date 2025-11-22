@@ -28,7 +28,7 @@ jobs:
 
       - name: Set short SHA tag
         id: set-tag
-        run: echo "TAG_LIST=${GITHUB_SHA::7}" >> $GITHUB_ENV && echo "::set-output name=TAG_LIST::${GITHUB_SHA::7}"
+        run: echo "::set-output name=TAG_LIST::${GITHUB_SHA::7}"
 
   build-to-camden:
     runs-on: ubuntu-latest
@@ -36,9 +36,6 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-
-      - name: Set up Kaniko (Docker Buildx helper)
-        uses: crazy-max/ghaction-docker-buildx@v2
 
       - name: Build and Push Image with Kaniko
         run: |
