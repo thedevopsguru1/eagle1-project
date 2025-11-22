@@ -3,9 +3,6 @@ name: CI/CD with Kaniko
 on:
   push:
     branches: ["main", "master", "develop"]
-    # paths:
-    #   - "backend/**"
-    #   - ".github/workflows/build-with-kaniko.yml"
   workflow_dispatch:
 
 env:
@@ -14,6 +11,8 @@ env:
 jobs:
   build-backend:
     runs-on: ubuntu-latest
+    outputs:
+      SHORT_SHA: ${{ steps.set-tag.outputs.TAG_LIST }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -28,11 +27,12 @@ jobs:
         run: mvn clean install -DskipTests
 
       - name: Set short SHA tag
-        run: echo "TAG_LIST=${GITHUB_SHA::7}" >> $GITHUB_ENV
+        id: set-tag
+        run: echo "TAG_LIST=${GITHUB_SHA::7}" >> $GITHUB_ENV && echo "::set-output name=TAG_LIST::${GITHUB_SHA::7}"
 
   build-to-camden:
     runs-on: ubuntu-latest
-
+    needs: build-backend
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -48,7 +48,7 @@ jobs:
           /kaniko/executor \
             --dockerfile=Dockerfile \
             --context=. \
-            --destination=${{ secrets.CAMDEN_REGISTRY }}/web:${GITHUB_SHA::7} \
+            --destination=${{ secrets.CAMDEN_REGISTRY }}/web:${{ needs.build-backend.outputs.SHORT_SHA }} \
             ${{ env.KANIKO_CACHE_ARGS }} \
             --push-retry 5
         env:
@@ -69,8 +69,8 @@ jobs:
         env:
           ARGOCD_AUTH_TOKEN: ${{ secrets.ARGO_TOKEN }}
           ARGO_APP: gbi
+          IMAGE_TAG: ${{ needs.build-backend.outputs.SHORT_SHA }}
         run: |
-          argocd --server argocd.anaeleboo.com --insecure --grpc-web \
-            login argocd.anaeleboo.com --token $ARGOCD_AUTH_TOKEN
-          argocd app set "$ARGO_APP" -p web.image.tag="${TAG_LIST}"
+          argocd --server argocd.anaeleboo.com --insecure --grpc-web login argocd.anaeleboo.com --token $ARGOCD_AUTH_TOKEN
+          argocd app set "$ARGO_APP" -p web.image.tag="$IMAGE_TAG"
           argocd app sync "$ARGO_APP"
