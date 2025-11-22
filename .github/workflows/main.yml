@@ -67,6 +67,7 @@ jobs:
           username: ${{ env.CAMDEN_USERNAME }}
           password: ${{ env.CAMDEN_PASSWORD }}
           cache: true
+          cache-repo: ${{ env.CAMDEN_USERNAME }}/web-cache 
 
   deploy:
     runs-on: ubuntu-latest
