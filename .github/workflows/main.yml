@@ -28,7 +28,7 @@ jobs:
 
       - name: Set short SHA tag
         id: set-tag
-        run: echo "::set-output name=TAG_LIST::${GITHUB_SHA::7}"
+        run: echo "TAG_LIST=${GITHUB_SHA::7}" >> $GITHUB_ENV
 
   build-to-camden:
     runs-on: ubuntu-latest
@@ -37,24 +37,30 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Build and Push Docker Image with Kaniko
+      - name: Prepare Kaniko Docker Config
         run: |
           mkdir -p $HOME/.docker
-          echo "{\"auths\":{\"${CAMDEN_REGISTRY}\":{\"username\":\"${CAMDEN_REGISTRY_USER}\",\"password\":\"${CAMDEN_PASSWORD}\"}}}" > $HOME/.docker/config.json
+          echo "{\"auths\":{\"${CAMDEN_REGISTRY}\":{\"username\":\"${CAMDEN_REGISTRY_USER}\",\"password\":\"${CAMDEN_REGISTRY_PASS}\"}}}" > $HOME/.docker/config.json
+        env:
+          CAMDEN_REGISTRY: ${{ secrets.CAMDEN_REGISTRY }}
+          CAMDEN_REGISTRY_USER: ${{ secrets.CAMDEN_REGISTRY_USER }}
+          CAMDEN_REGISTRY_PASS: ${{ secrets.CAMDEN_REGISTRY_PASSWORD }}
 
+      - name: Build and Push Docker Image with Kaniko
+        run: |
           docker run --rm \
             -v $PWD:/workspace \
             -v $HOME/.docker:/kaniko/.docker \
             gcr.io/kaniko-project/executor:v1.24.0 \
             --dockerfile=/workspace/Dockerfile \
             --context=/workspace \
-            --destination=${{ secrets.CAMDEN_REGISTRY }}/web:${{ needs.build-backend.outputs.SHORT_SHA }} \
+            --destination=${CAMDEN_REGISTRY}/web:${{ needs.build-backend.outputs.SHORT_SHA }} \
             ${{ env.KANIKO_CACHE_ARGS }} \
             --push-retry 5
         env:
-          CAMDEN_USER: ${{ secrets.CAMDEN_REGISTRY_USER }}
-          CAMDEN_PASS: ${{ secrets.CAMDEN_REGISTRY_PASSWORD }}
           CAMDEN_REGISTRY: ${{ secrets.CAMDEN_REGISTRY }}
+          CAMDEN_REGISTRY_USER: ${{ secrets.CAMDEN_REGISTRY_USER }}
+          CAMDEN_REGISTRY_PASS: ${{ secrets.CAMDEN_REGISTRY_PASSWORD }}
 
   deploy-to-argocd:
     runs-on: ubuntu-latest
