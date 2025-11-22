@@ -34,25 +34,25 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: gcr.io/kaniko-project/executor:v1.24.0
-
+    needs: build-backend
     steps:
-      - name: Checkout Code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Build and Push Docker Image with Kaniko
         run: |
-          mkdir -p /kaniko/.docker
-          echo "{\"auths\":{\"${{ secrets.CAMDEN_REGISTRY }}\":{\"username\":\"${CAMDEN_USER}\",\"password\":\"${CAMDEN_PASS}\"}}}" > /kaniko/.docker/config.json
+          mkdir -p $HOME/.docker
+          echo "{\"auths\":{\"${{ secrets.CAMDEN_REGISTRY }}\":{\"username\":\"${CAMDEN_USER}\",\"password\":\"${CAMDEN_PASS}\"}}}" > $HOME/.docker/config.json
 
           /kaniko/executor \
             --dockerfile=Dockerfile \
             --context=. \
-            --destination=${{ secrets.CAMDEN_REGISTRY }}/web:${GITHUB_SHA::7} \
+            --destination=${{ secrets.CAMDEN_REGISTRY }}/web:${{ needs.build-backend.outputs.SHORT_SHA }} \
             ${{ env.KANIKO_CACHE_ARGS }} \
             --push-retry 5
         env:
-          DOCKER_USERNAME: ${{ secrets.CAMDEN_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.CAMDEN_PASSWORD }}
+          CAMDEN_USER: ${{ secrets.CAMDEN_USERNAME }}
+          CAMDEN_PASS: ${{ secrets.CAMDEN_PASSWORD }}
 
   deploy-to-argocd:
     runs-on: ubuntu-latest
