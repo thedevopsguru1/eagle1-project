@@ -9,8 +9,7 @@ on:
 
 env:
   MAVEN_OPTS: -Dhttps.protocols=TLSv1.2 -Dmaven.repo.local=/home/runner/work/eagle1-project/eagle1-project/.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=jarN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true
-  MAVEN_CLI_OPTS: clean -Dskip.karma=true -Dmaven.test.failure.ignore=true -DskipTests -Dmaven.deploy.skip=true --batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true -s m2settings.xml
-
+  MAVEN_CLI_OPTS: clean -Dskip.karma=true -Dmaven.test.failure.ignore=true -DskipTests -Dmaven.deploy.skip=true --batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true 
   KUBERNETES_CPU_REQUEST: 2
   KUBERNETES_CPU_LIMIT: 3
   KUBERNETES_MEMORY_REQUEST: 2Gi
